@@ -45,12 +45,12 @@ def tokens_by_tag(tagged_tokens, search_tag):
 
 # Start talking to Angela
 question = random_member(questions)
-print angela +question 
+print angela + question 
 response = raw_input("You: ")
 
 # Extract sentence parts (nouns, adjectives, maybe later verbs)
 tokens = nltk.word_tokenize(response)
-tagged = nltk.pos_tag(tokens)
+tagged = nltk.pos_tag(tokens) # this causes the lag
 
 # http://www.monlp.com/2011/11/08/part-of-speech-tags/
 # Adjective: JJ, JJR (comparative), JJS (superlative)
@@ -76,6 +76,7 @@ def generate_all_possible_repartees():
   repartees += [angela + random_member(insults) + adjective + "." for adjective in adjectives + adjectives_comparative]
   repartees += [angela + random_member(insults) + "the " + adjective + "!" for adjective in adjectives_superlative + adverbs_superlative + nouns]
   repartees += [angela + random_member(insults_wishes) + could + verb + "." for verb in verbs]
+  repartees += [angela + random_member(insults_wishes) + verb + "." for verb in verbs_past]
   if repartees:
     return repartees
   return [angela + fail + "\n" + angela_broken]
