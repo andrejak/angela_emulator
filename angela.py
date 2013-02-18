@@ -2,13 +2,15 @@
 # Author:  Andreja Kogovsek
 
 import random
-import nltk
+import string
+import nltk # Natural language toolkit
 
 # Constants
 
 angela = "Angela: "
 was = "was "
 could = "could "
+have = "have "
 doing = "doing "
 fail = "Your mum's face wishes her face's mum was... I mean... Wait..."
 angela_broken = "Well done. You broke Angela. I hope you're happy now."
@@ -22,7 +24,10 @@ questions = [
   "Where's Rebecca?",
   "When was the last time you saw Dave?",
   "What's the best thing about cats?",
-  "Do you know what Andreja's plotting now?"
+  "Do you know what Andreja's plotting now?",
+  "How do you feel about glitter?" ,
+  "Ponies?",
+  "What should I do?"
 ]
 
 insults_wishes = [
@@ -50,6 +55,7 @@ print angela + question
 response = raw_input("You: ")
 
 # Extract sentence parts (nouns, adjectives, maybe later verbs)
+response = "".join([char for char in response if char not in string.punctuation])
 tokens = nltk.word_tokenize(response)
 tagged = nltk.pos_tag(tokens) # this causes the lag
 
@@ -71,6 +77,8 @@ nouns_proper_plural    = tokens_by_tag(tagged, "NNPS")
 verbs                  = tokens_by_tag(tagged, "VB")
 verbs_past             = tokens_by_tag(tagged, "VBD")
 verbs_3rd              = tokens_by_tag(tagged, "VBZ")
+verbs_non_3rd          = tokens_by_tag(tagged, "VBP")
+verbs_past_participle  = tokens_by_tag(tagged, "VBN")
 #print tagged # DEBUG
 
 # Extract the part to use as the insult
@@ -79,8 +87,9 @@ def generate_all_possible_repartees():
   repartees = []
   repartees += [angela + random_member(insults) + adjective + "." for adjective in adjectives + adjectives_comparative + nouns_proper]
   repartees += [angela + random_member(insults) + "the " + adjective + "." for adjective in adjectives_superlative + adverbs_superlative + nouns]
-  repartees += [angela + random_member(insults_wishes) + could + verb + "." for verb in verbs]
+  repartees += [angela + random_member(insults_wishes) + could + verb + "." for verb in verbs + verbs_non_3rd]
   repartees += [angela + random_member(insults_wishes) + verb + "." for verb in verbs_past]
+  repartees += [angela + random_member(insults_wishes) + could + have + verb + "." for verb in verbs_past_participle]
   repartees += [angela + random_member(insults) + doing + adverb + "." for adverb in adverbs + adverbs_comparative]
   if repartees:
     return repartees
