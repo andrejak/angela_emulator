@@ -9,6 +9,7 @@ import nltk
 angela = "Angela: "
 was = "was "
 could = "could "
+doing = "doing "
 fail = "Your mum's face wishes her face's mum was... I mean... Wait..."
 angela_broken = "Well done. You broke Angela. I hope you're happy now."
 
@@ -65,18 +66,22 @@ adverbs_comparative    = tokens_by_tag(tagged, "RBR")
 adverbs_superlative    = tokens_by_tag(tagged, "RBS")
 nouns                  = tokens_by_tag(tagged, "NN")
 nouns_plural           = tokens_by_tag(tagged, "NNS")
+nouns_proper           = tokens_by_tag(tagged, "NNP")
+nouns_proper_plural    = tokens_by_tag(tagged, "NNPS")
 verbs                  = tokens_by_tag(tagged, "VB")
 verbs_past             = tokens_by_tag(tagged, "VBD")
 verbs_3rd              = tokens_by_tag(tagged, "VBZ")
 #print tagged # DEBUG
 
 # Extract the part to use as the insult
+# Some cases don't work well (eg adverb - however, nouns - fluffy...)
 def generate_all_possible_repartees():
   repartees = []
-  repartees += [angela + random_member(insults) + adjective + "." for adjective in adjectives + adjectives_comparative]
-  repartees += [angela + random_member(insults) + "the " + adjective + "!" for adjective in adjectives_superlative + adverbs_superlative + nouns]
+  repartees += [angela + random_member(insults) + adjective + "." for adjective in adjectives + adjectives_comparative + nouns_proper]
+  repartees += [angela + random_member(insults) + "the " + adjective + "." for adjective in adjectives_superlative + adverbs_superlative + nouns]
   repartees += [angela + random_member(insults_wishes) + could + verb + "." for verb in verbs]
   repartees += [angela + random_member(insults_wishes) + verb + "." for verb in verbs_past]
+  repartees += [angela + random_member(insults) + doing + adverb + "." for adverb in adverbs + adverbs_comparative]
   if repartees:
     return repartees
   return [angela + fail + "\n" + angela_broken]
