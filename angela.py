@@ -35,6 +35,26 @@ print tokens
 tagged = nltk.pos_tag(tokens)
 print tagged
 
+# Adjective: JJ, JJR (comparative), JJS (superlative)
+# Adverb:    RB, RBR (comparative), RBS (suplerative)
+# Noun:      NN, NNS (plural), NNP (proper), NNPS (proper plural)
+# Verbs:     VB (base), VBD (past), VBZ (3rd person singular present) ...
+
+def tokens_by_tag(tagged_tokens, search_tag):
+  return [token for (token, tag) in tagged_tokens if tag == search_tag]
+
+adjectives             = tokens_by_tag(tagged, "JJ")
+adjectives_comparative = tokens_by_tag(tagged, "JJR")
+adverbs_superlative    = tokens_by_tag(tagged, "RBS")
+adverbs                = tokens_by_tag(tagged, "RB")
+adverbs_comparative    = tokens_by_tag(tagged, "RBR")
+adverbs_superlative    = tokens_by_tag(tagged, "RBS")
+nouns                  = tokens_by_tag(tagged, "NN")
+nouns_plural           = tokens_by_tag(tagged, "NNS")
+verbs                  = tokens_by_tag(tagged, "VB")
+verbs_past             = tokens_by_tag(tagged, "VBD")
+verbs_3rd              = tokens_by_tag(tagged, "VBZ")
+
 # Extract the part to use as the insult
 if (q == 0):
   print(angela + "Yeah, I agree.")
