@@ -1,0 +1,6 @@
+Dependencies and installation instructions
+nltk      : http://nltk.org/install.html
+nltk_data : http://nltk.org/data.html
+
+Run the script like this:
+python angela.py
