@@ -2,6 +2,7 @@
 # Author:  Andreja Kogovsek
 
 import random
+import nltk
 
 angela = "Angela: "
 
@@ -28,6 +29,11 @@ response = raw_input("You: ")
 # adjective:          X -> X (negative positive ones later?)
 # nouns:              X -> a/an? X
 # nouns to adjective: X -> (more) like a X
+
+tokens = nltk.word_tokenize(response)
+print tokens
+tagged = nltk.pos_tag(tokens)
+print tagged
 
 # Extract the part to use as the insult
 if (q == 0):
