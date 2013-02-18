@@ -1,22 +1,22 @@
 ---------------------------------------------------------------------
-Dependencies and installation instructions:
+About
+---------------------------------------------------------------------
+Disclaimer: 
+This script is definitely not part of a larger, perfectly innocent, 
+project (and by that I do not secretly mean evil conspiracy)
+to render people obsolete and replace them with scripts.
+(Next up: ICL health centre.) 
+We are also not planning to take over the world with killer robots.
+
+---------------------------------------------------------------------
+Dependencies and installation instructions
 ---------------------------------------------------------------------
 
 nltk      : http://nltk.org/install.html
 nltk_data : http://nltk.org/data.html
 
 ---------------------------------------------------------------------
-How to run the script:
+How to run the script
 ---------------------------------------------------------------------
 
 python angela.py
-
----------------------------------------------------------------------
-About
----------------------------------------------------------------------
-Disclaimer: 
-This script is definitely not part of a larger, perfectly innocent, 
-project (and by that I do not secretly mean evil conspiracy)
-to render people obsolete and replace them with scripts
-(next up: ICL health centre). 
-We are also not planning a take over the world with killer robots.
