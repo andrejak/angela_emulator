@@ -9,11 +9,15 @@ import nltk # Natural language toolkit
 
 angela = "Angela: "
 was = "was "
-could = "could "
 have = "have "
 doing = "doing "
 fail = "Your mum's face wishes her face's mum was... I mean... Wait..."
 angela_broken = "Well done. You broke Angela. I hope you're happy now."
+
+modal_past = [
+  "could ", 
+  "would "
+]
 
 questions = [
   "What do you think about Ruth?",
@@ -87,7 +91,7 @@ def generate_all_possible_repartees():
   repartees = []
   repartees += [angela + random_member(insults) + adjective + "." for adjective in adjectives + adjectives_comparative + nouns_proper]
   repartees += [angela + random_member(insults) + "the " + adjective + "." for adjective in adjectives_superlative + adverbs_superlative + nouns]
-  repartees += [angela + random_member(insults_wishes) + could + verb + "." for verb in verbs + verbs_non_3rd]
+  repartees += [angela + random_member(insults_wishes) + random_member(modal_past) + verb + "." for verb in verbs + verbs_non_3rd]
   repartees += [angela + random_member(insults_wishes) + verb + "." for verb in verbs_past]
   repartees += [angela + random_member(insults_wishes) + could + have + verb + "." for verb in verbs_past_participle]
   repartees += [angela + random_member(insults) + doing + adverb + "." for adverb in adverbs + adverbs_comparative]
