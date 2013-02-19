@@ -1,13 +1,13 @@
-# Missing Angela? Want to talk to her? Then this script is for you.
-# Author:  Andreja Kogovsek
-
 from random import randint
 from string import punctuation
-# Natural language toolkit
+
+# Natural Language Toolkit imports
 from nltk.tag import pos_tag
 from nltk.tokenize import sent_tokenize, word_tokenize
 
+#####################################################################
 # Constants
+#####################################################################
 
 angela = "Angela: "
 was    = "was "
@@ -49,16 +49,42 @@ bases = [
   "Your mum is "
 ] + [wish + was for wish in bases_wishes]
 
+#####################################################################
 # Helper function definitions
+#####################################################################
 
+# Returns a random member from the given list
 def random_member(from_list):
   return from_list[randint(0, len(from_list) - 1)]
 
+# Returns all token from the given list with the given tag
 def tokens_by_tag(tagged_tokens, search_tag):
   return [token for (token, tag) in tagged_tokens if tag == search_tag]
 
-def build_repartees(bases, from_list, additions):
-  return [angela + random_member(bases) + additions + elem + "." for elem in from_list]
+# Builds a response based on one of the official bases, 
+# a word in the source list, using and given connectives to bind them
+def build_repartees(bases, from_list, connectives):
+  return [angela + random_member(bases) + connectives + elem + "." for elem in from_list]
+
+# Extract the part to use as the insult
+# TODO Some cases don't work well (eg adverb - however, nouns - fluffy...)
+def generate_all_possible_repartees():
+  repartees = []
+  repartees += build_repartees(bases, adjectives + adjectives_comparative + nouns_proper, "")
+  repartees += build_repartees(bases, adjectives_superlative + adverbs_superlative + nouns, the)
+  repartees += build_repartees(bases, adverbs + adverbs_comparative, doing)
+  repartees += build_repartees(bases_wishes, verbs + verbs_non_3rd, random_member(modal_past))
+  repartees += build_repartees(bases_wishes, verbs_past, "")
+  repartees += build_repartees(bases_wishes, verbs_past_participle, random_member(modal_past) + have)
+  repartees += build_repartees(bases_wishes, nouns_plural + nouns_proper_plural, had)
+  if repartees:
+    return repartees
+  return [angela + fail + "\n" + broken]
+  #return [angela + random_member(bases) + response + "."] 
+
+#####################################################################
+# Interactive part of the program
+#####################################################################
 
 # Start talking to Angela
 question = random_member(questions)
@@ -70,13 +96,9 @@ response = "".join([char for char in response if char not in punctuation])
 tokens = [word_tokenize(sentence) for sentence in sent_tokenize(response)]
 # Flatten the list of lists
 tokens = [elem for sublist in tokens for elem in sublist]
-tagged = pos_tag(tokens) # this causes the lag
+tagged = pos_tag(tokens) # this causes the lag - but I doubt I can fix it
 
-# http://www.monlp.com/2011/11/08/part-of-speech-tags/
-# Adjective: JJ, JJR (comparative), JJS (superlative)
-# Adverb:    RB, RBR (comparative), RBS (superlative)
-# Noun:      NN, NNS (plural), NNP (proper), NNPS (proper plural)
-# Verbs:     VB (base), VBD (past), VBZ (3rd person singular present) ...
+# Explanation: http://www.monlp.com/2011/11/08/part-of-speech-tags/
 adjectives             = tokens_by_tag(tagged, "JJ")
 adjectives_comparative = tokens_by_tag(tagged, "JJR")
 adjectives_superlative = tokens_by_tag(tagged, "JJS")
@@ -93,22 +115,6 @@ verbs_3rd              = tokens_by_tag(tagged, "VBZ")
 verbs_non_3rd          = tokens_by_tag(tagged, "VBP")
 verbs_past_participle  = tokens_by_tag(tagged, "VBN")
 #print tagged # DEBUG
-
-# Extract the part to use as the insult
-# Some cases don't work well (eg adverb - however, nouns - fluffy...)
-def generate_all_possible_repartees():
-  repartees = []
-  repartees += build_repartees(bases, adjectives + adjectives_comparative + nouns_proper, "")
-  repartees += build_repartees(bases, adjectives_superlative + adverbs_superlative + nouns, the)
-  repartees += build_repartees(bases, adverbs + adverbs_comparative, doing)
-  repartees += build_repartees(bases_wishes, verbs + verbs_non_3rd, random_member(modal_past))
-  repartees += build_repartees(bases_wishes, verbs_past, "")
-  repartees += build_repartees(bases_wishes, verbs_past_participle, random_member(modal_past) + have)
-  repartees += build_repartees(bases_wishes, nouns_plural + nouns_proper_plural, had)
-  if repartees:
-    return repartees
-  return [angela + fail + "\n" + broken]
-  #return [angela + random_member(bases) + response + "."]
 
 # Select an insult as a response
 if ("Ruth" in question):
