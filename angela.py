@@ -1,9 +1,11 @@
 # Missing Angela? Want to talk to her? Then this script is for you.
 # Author:  Andreja Kogovsek
 
-import random
-import string
-import nltk # Natural language toolkit
+from random import randint
+from string import punctuation
+# Natural language toolkit
+from nltk.tag import pos_tag
+from nltk.tokenize import sent_tokenize, word_tokenize
 
 # Constants
 
@@ -49,7 +51,7 @@ insults = [
 # Helper function definitions
 
 def random_member(from_list):
-  return from_list[random.randint(0, len(from_list) - 1)]
+  return from_list[randint(0, len(from_list) - 1)]
 
 def tokens_by_tag(tagged_tokens, search_tag):
   return [token for (token, tag) in tagged_tokens if tag == search_tag]
@@ -60,9 +62,11 @@ print angela + question
 response = raw_input("You: ")
 
 # Extract sentence parts (nouns, adjectives, maybe later verbs)
-response = "".join([char for char in response if char not in string.punctuation])
-tokens = nltk.word_tokenize(response)
-tagged = nltk.pos_tag(tokens) # this causes the lag
+response = "".join([char for char in response if char not in punctuation])
+tokens = [word_tokenize(sentence) for sentence in sent_tokenize(response)]
+# flatten the list of lists
+tokens = [elem for sublist in tokens for elem in sublist]
+tagged = pos_tag(tokens) # this causes the lag
 
 # http://www.monlp.com/2011/11/08/part-of-speech-tags/
 # Adjective: JJ, JJR (comparative), JJS (superlative)
@@ -96,7 +100,7 @@ def generate_all_possible_repartees():
   repartees += [angela + random_member(insults_wishes) + random_member(modal_past) + verb + "." for verb in verbs + verbs_non_3rd]
   repartees += [angela + random_member(insults_wishes) + verb + "." for verb in verbs_past]
   repartees += [angela + random_member(insults_wishes) + could + have + verb + "." for verb in verbs_past_participle]
-  repartees += [angela + random_member(insults_wishes) + had + noun for noun in nouns_plural + nouns_proper_plural]
+  repartees += [angela + random_member(insults_wishes) + had + noun + "." for noun in nouns_plural + nouns_proper_plural]
   if repartees:
     return repartees
   return [angela + fail + "\n" + broken]
