@@ -14,6 +14,7 @@ was    = "was "
 have   = "have "
 had    = "had "
 doing  = "doing "
+the    = "the "
 fail   = "Your mum's face wishes her face's mum was... I mean... Wait..."
 broken = "Well done. You broke Angela. I hope you're happy now."
 
@@ -37,16 +38,16 @@ questions = [
   "What should I do?"
 ]
 
-insults_wishes = [
+bases_wishes = [
   "Your mum wishes she ",
   "Your mum wishes her face ",
   "Your mum wishes your face "
 ]
 
-insults = [
+bases = [
   "Your face is ", 
   "Your mum is "
-] + [wish + was for wish in insults_wishes]
+] + [wish + was for wish in bases_wishes]
 
 # Helper function definitions
 
@@ -56,6 +57,9 @@ def random_member(from_list):
 def tokens_by_tag(tagged_tokens, search_tag):
   return [token for (token, tag) in tagged_tokens if tag == search_tag]
 
+def build_repartees(bases, from_list, additions):
+  return [angela + random_member(bases) + additions + elem + "." for elem in from_list]
+
 # Start talking to Angela
 question = random_member(questions)
 print angela + question 
@@ -64,7 +68,7 @@ response = raw_input("You: ")
 # Extract sentence parts (nouns, adjectives, maybe later verbs)
 response = "".join([char for char in response if char not in punctuation])
 tokens = [word_tokenize(sentence) for sentence in sent_tokenize(response)]
-# flatten the list of lists
+# Flatten the list of lists
 tokens = [elem for sublist in tokens for elem in sublist]
 tagged = pos_tag(tokens) # this causes the lag
 
@@ -94,19 +98,19 @@ verbs_past_participle  = tokens_by_tag(tagged, "VBN")
 # Some cases don't work well (eg adverb - however, nouns - fluffy...)
 def generate_all_possible_repartees():
   repartees = []
-  repartees += [angela + random_member(insults) + adjective + "." for adjective in adjectives + adjectives_comparative + nouns_proper]
-  repartees += [angela + random_member(insults) + "the " + adjective + "." for adjective in adjectives_superlative + adverbs_superlative + nouns]
-  repartees += [angela + random_member(insults) + doing + adverb + "." for adverb in adverbs + adverbs_comparative]
-  repartees += [angela + random_member(insults_wishes) + random_member(modal_past) + verb + "." for verb in verbs + verbs_non_3rd]
-  repartees += [angela + random_member(insults_wishes) + verb + "." for verb in verbs_past]
-  repartees += [angela + random_member(insults_wishes) + could + have + verb + "." for verb in verbs_past_participle]
-  repartees += [angela + random_member(insults_wishes) + had + noun + "." for noun in nouns_plural + nouns_proper_plural]
+  repartees += build_repartees(bases, adjectives + adjectives_comparative + nouns_proper, "")
+  repartees += build_repartees(bases, adjectives_superlative + adverbs_superlative + nouns, the)
+  repartees += build_repartees(bases, adverbs + adverbs_comparative, doing)
+  repartees += build_repartees(bases_wishes, verbs + verbs_non_3rd, random_member(modal_past))
+  repartees += build_repartees(bases_wishes, verbs_past, "")
+  repartees += build_repartees(bases_wishes, verbs_past_participle, random_member(modal_past) + have)
+  repartees += build_repartees(bases_wishes, nouns_plural + nouns_proper_plural, had)
   if repartees:
     return repartees
   return [angela + fail + "\n" + broken]
-  #return [angela + random_member(insults) + response + "."]
+  #return [angela + random_member(bases) + response + "."]
 
-# Generate an insult as a response
+# Select an insult as a response
 if ("Ruth" in question):
   print angela + "Yeah, I agree."
 else:
