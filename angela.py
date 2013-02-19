@@ -35,7 +35,8 @@ questions = [
   "Do you know what Andreja's plotting now?",
   "How do you feel about glitter?" ,
   "Ponies?",
-  "What should I do?"
+  "What should I do?",
+  "What do you like to do?"
 ]
 
 bases_wishes = [
@@ -73,7 +74,7 @@ def generate_all_possible_repartees():
   repartees += build_repartees(bases, adjectives + adjectives_comparative + nouns_proper, "")
   repartees += build_repartees(bases, adjectives_superlative + adverbs_superlative + nouns, the)
   repartees += build_repartees(bases, adverbs + adverbs_comparative, doing)
-  repartees += build_repartees(bases_wishes, verbs + verbs_non_3rd, random_member(modal_past))
+  repartees += build_repartees(bases_wishes, verbs + verbs_non_3rd + multiword_responses, random_member(modal_past))
   repartees += build_repartees(bases_wishes, verbs_past, "")
   repartees += build_repartees(bases_wishes, verbs_past_participle, random_member(modal_past) + have)
   repartees += build_repartees(bases_wishes, nouns_plural + nouns_proper_plural, had)
@@ -92,7 +93,7 @@ print angela + question
 response = raw_input("You: ")
 
 # Extract sentence parts (nouns, adjectives, maybe later verbs)
-response = "".join([char for char in response if char not in punctuation])
+#response = "".join([char for char in response if char not in punctuation])
 tokens = [word_tokenize(sentence) for sentence in sent_tokenize(response)]
 # Flatten the list of lists
 tokens = [elem for sublist in tokens for elem in sublist]
@@ -114,7 +115,24 @@ verbs_past             = tokens_by_tag(tagged, "VBD")
 verbs_3rd              = tokens_by_tag(tagged, "VBZ")
 verbs_non_3rd          = tokens_by_tag(tagged, "VBP")
 verbs_past_participle  = tokens_by_tag(tagged, "VBN")
+pronouns_personal      = tokens_by_tag(tagged, "PRP")
+pos_punctuation        = []
+for punct in punctuation:
+  pos_punctuation += tokens_by_tag(tagged, punct)
 #print tagged # DEBUG
+
+# Try to build a multiple word response
+helper_responses = []
+multiword_responses = []
+# from verb
+for verb in verbs + verbs_non_3rd:
+  helper_responses += [tokens[i:] if i < len(tokens) else None for i in range(len(tokens)) if tokens[i] == verb]
+# up to noun/punctuation/... or the end
+for fr in helper_responses:
+  fr = [fr[:(i + 1)] if i + 1 < len(fr) else None for i in range(len(fr)) if fr[i] in pos_punctuation + nouns + nouns_plural + nouns_proper + nouns_proper_plural]
+  if fr and fr[0]:
+    multiword_response = " ".join(fr[0])
+    multiword_responses.append(multiword_response)
 
 # Select an insult as a response
 if ("Ruth" in question):
