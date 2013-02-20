@@ -69,20 +69,35 @@ def build_repartees(bases, from_list, connectives):
 
 # Extract the part to use as the insult
 # TODO Some cases don't work well (eg adverb - however, nouns - fluffy...)
-def generate_all_possible_repartees():
+def generate_all_possible_repartees(groups):
+  # Try to build a multiple word response
+  helper_responses = []
+  multiword_responses = []
+  all_nouns = groups["nouns"] + groups["nouns_plural"] + groups["nouns_proper"] + groups["nouns_proper_plural"]
+  # from verb
+  for verb in groups["verbs"] + groups["verbs_non_3rd"]:
+    helper_responses += [tokens[i:] if i < len(tokens) else None for i in range(len(tokens)) if tokens[i] == verb]
+  # up to noun/punctuation/... or the end
+  for fr in helper_responses:
+    fr = [fr[:(i + 1)] if i + 1 < len(fr) else None for i in range(len(fr)) if fr[i] in groups["punctuation"] + all_nouns]
+    if fr and fr[0]:
+      multiword_response = " ".join(fr[0])
+      multiword_responses.append(multiword_response)
+
   repartees = []
-  repartees += build_repartees(bases, adjectives + adjectives_comparative + nouns_proper, "")
-  repartees += build_repartees(bases, adjectives_superlative + adverbs_superlative + nouns, the)
-  repartees += build_repartees(bases, adverbs + adverbs_comparative, doing)
-  repartees += build_repartees(bases_wishes, verbs + verbs_non_3rd + multiword_responses, random_member(modal_past))
-  repartees += build_repartees(bases_wishes, verbs_past, "")
-  repartees += build_repartees(bases_wishes, verbs_past_participle, random_member(modal_past) + have)
-  repartees += build_repartees(bases_wishes, nouns_plural + nouns_proper_plural, had)
+  repartees += build_repartees(bases, groups["adjectives"] + groups["adjectives_comparative"] + groups["nouns_proper"], "")
+  repartees += build_repartees(bases, groups["adjectives_superlative"] + groups["adverbs_superlative"] + groups["nouns"], the)
+  repartees += build_repartees(bases, groups["adverbs"] + groups["adverbs_comparative"], doing)
+  repartees += build_repartees(bases_wishes, groups["verbs"] + groups["verbs_non_3rd"] + multiword_responses, random_member(modal_past))
+  repartees += build_repartees(bases_wishes, groups["verbs_past"], "")
+  repartees += build_repartees(bases_wishes, groups["verbs_past_participle"], random_member(modal_past) + have)
+  repartees += build_repartees(bases_wishes, groups["nouns_plural"] + groups["nouns_proper_plural"], had)
   if repartees:
     return repartees
   return [angela + fail + "\n" + broken]
   #return [angela + random_member(bases) + response + "."] 
 
+# Explanation: http://www.monlp.com/2011/11/08/part-of-speech-tags/
 def group_by_tag(tagged):
   pos_punctuation = []
   for punct in punctuation:
@@ -105,14 +120,14 @@ def group_by_tag(tagged):
     "verbs_past_participle"  : tokens_by_tag(tagged, "VBN"),
     "verbs_gerund"           : tokens_by_tag(tagged, "VBG"),
     "pronouns_personal"      : tokens_by_tag(tagged, "PRP"),
-    "pos_punctuation"        : pos_punctuation
+    "punctuation"            : pos_punctuation
   }
 
 #####################################################################
 # Interactive part of the program
 #####################################################################
 
-if name=="__main__":
+if __name__=="__main__":
   # Start talking to Angela
   question = random_member(questions)
   print angela + question 
@@ -126,42 +141,8 @@ if name=="__main__":
   tagged = pos_tag(tokens) # this causes the lag - but I doubt I can fix it
   groups = group_by_tag(tagged)
 
-  # Explanation: http://www.monlp.com/2011/11/08/part-of-speech-tags/
-  adjectives             = tokens_by_tag(tagged, "JJ")
-  adjectives_comparative = tokens_by_tag(tagged, "JJR")
-  adjectives_superlative = tokens_by_tag(tagged, "JJS")
-  adverbs                = tokens_by_tag(tagged, "RB")
-  adverbs_comparative    = tokens_by_tag(tagged, "RBR")
-  adverbs_superlative    = tokens_by_tag(tagged, "RBS")
-  nouns                  = tokens_by_tag(tagged, "NN")
-  nouns_plural           = tokens_by_tag(tagged, "NNS")
-  nouns_proper           = tokens_by_tag(tagged, "NNP")
-  nouns_proper_plural    = tokens_by_tag(tagged, "NNPS")
-  verbs                  = tokens_by_tag(tagged, "VB")
-  verbs_past             = tokens_by_tag(tagged, "VBD")
-  verbs_3rd              = tokens_by_tag(tagged, "VBZ")
-  verbs_non_3rd          = tokens_by_tag(tagged, "VBP")
-  verbs_past_participle  = tokens_by_tag(tagged, "VBN")
-  pronouns_personal      = tokens_by_tag(tagged, "PRP")
-  pos_punctuation        = []
-  for punct in punctuation:
-    pos_punctuation += tokens_by_tag(tagged, punct)
-
-  # Try to build a multiple word response
-  helper_responses = []
-  multiword_responses = []
-  # from verb
-  for verb in verbs + verbs_non_3rd:
-    helper_responses += [tokens[i:] if i < len(tokens) else None for i in range(len(tokens)) if tokens[i] == verb]
-  # up to noun/punctuation/... or the end
-  for fr in helper_responses:
-    fr = [fr[:(i + 1)] if i + 1 < len(fr) else None for i in range(len(fr)) if fr[i] in pos_punctuation + nouns + nouns_plural + nouns_proper + nouns_proper_plural]
-    if fr and fr[0]:
-      multiword_response = " ".join(fr[0])
-      multiword_responses.append(multiword_response)
-
   # Select an insult as a response
   if ("Ruth" in question):
     print angela + "Yeah, I agree."
   else:
-    print random_member(generate_all_possible_repartees())
+    print random_member(generate_all_possible_repartees(groups))
