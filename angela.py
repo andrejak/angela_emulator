@@ -83,6 +83,30 @@ def generate_all_possible_repartees():
   return [angela + fail + "\n" + broken]
   #return [angela + random_member(bases) + response + "."] 
 
+def group_by_tag(tagged):
+  pos_punctuation = []
+  for punct in punctuation:
+    pos_punctuation += tokens_by_tag(tagged, punct)
+  return {
+    "adjectives"             : tokens_by_tag(tagged, "JJ"),
+    "adjectives_comparative" : tokens_by_tag(tagged, "JJR"),
+    "adjectives_superlative" : tokens_by_tag(tagged, "JJS"),
+    "adverbs"                : tokens_by_tag(tagged, "RB"),
+    "adverbs_comparative"    : tokens_by_tag(tagged, "RBR"),
+    "adverbs_superlative"    : tokens_by_tag(tagged, "RBS"),
+    "nouns"                  : tokens_by_tag(tagged, "NN"),
+    "nouns_plural"           : tokens_by_tag(tagged, "NNS"),
+    "nouns_proper"           : tokens_by_tag(tagged, "NNP"),
+    "nouns_proper_plural"    : tokens_by_tag(tagged, "NNPS"),
+    "verbs"                  : tokens_by_tag(tagged, "VB"),
+    "verbs_past"             : tokens_by_tag(tagged, "VBD"),
+    "verbs_3rd"              : tokens_by_tag(tagged, "VBZ"),
+    "verbs_non_3rd"          : tokens_by_tag(tagged, "VBP"),
+    "verbs_past_participle"  : tokens_by_tag(tagged, "VBN"),
+    "pronouns_personal"      : tokens_by_tag(tagged, "PRP"),
+    "pos_punctuation"        : pos_punctuation
+  }
+
 #####################################################################
 # Interactive part of the program
 #####################################################################
