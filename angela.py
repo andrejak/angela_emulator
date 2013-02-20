@@ -103,6 +103,7 @@ def group_by_tag(tagged):
     "verbs_3rd"              : tokens_by_tag(tagged, "VBZ"),
     "verbs_non_3rd"          : tokens_by_tag(tagged, "VBP"),
     "verbs_past_participle"  : tokens_by_tag(tagged, "VBN"),
+    "verbs_gerund"           : tokens_by_tag(tagged, "VBG"),
     "pronouns_personal"      : tokens_by_tag(tagged, "PRP"),
     "pos_punctuation"        : pos_punctuation
   }
@@ -111,55 +112,56 @@ def group_by_tag(tagged):
 # Interactive part of the program
 #####################################################################
 
-# Start talking to Angela
-question = random_member(questions)
-print angela + question 
-response = raw_input("You: ")
+if name=="__main__":
+  # Start talking to Angela
+  question = random_member(questions)
+  print angela + question 
+  response = raw_input("You: ")
 
-# Extract sentence parts (nouns, adjectives, maybe later verbs)
-#response = "".join([char for char in response if char not in punctuation])
-tokens = [word_tokenize(sentence) for sentence in sent_tokenize(response)]
-# Flatten the list of lists
-tokens = [elem for sublist in tokens for elem in sublist]
-tagged = pos_tag(tokens) # this causes the lag - but I doubt I can fix it
+  # Extract sentence parts (nouns, adjectives, maybe later verbs)
+  #response = "".join([char for char in response if char not in punctuation])
+  tokens = [word_tokenize(sentence) for sentence in sent_tokenize(response)]
+  # Flatten the list of lists
+  tokens = [elem for sublist in tokens for elem in sublist]
+  tagged = pos_tag(tokens) # this causes the lag - but I doubt I can fix it
+  groups = group_by_tag(tagged)
 
-# Explanation: http://www.monlp.com/2011/11/08/part-of-speech-tags/
-adjectives             = tokens_by_tag(tagged, "JJ")
-adjectives_comparative = tokens_by_tag(tagged, "JJR")
-adjectives_superlative = tokens_by_tag(tagged, "JJS")
-adverbs                = tokens_by_tag(tagged, "RB")
-adverbs_comparative    = tokens_by_tag(tagged, "RBR")
-adverbs_superlative    = tokens_by_tag(tagged, "RBS")
-nouns                  = tokens_by_tag(tagged, "NN")
-nouns_plural           = tokens_by_tag(tagged, "NNS")
-nouns_proper           = tokens_by_tag(tagged, "NNP")
-nouns_proper_plural    = tokens_by_tag(tagged, "NNPS")
-verbs                  = tokens_by_tag(tagged, "VB")
-verbs_past             = tokens_by_tag(tagged, "VBD")
-verbs_3rd              = tokens_by_tag(tagged, "VBZ")
-verbs_non_3rd          = tokens_by_tag(tagged, "VBP")
-verbs_past_participle  = tokens_by_tag(tagged, "VBN")
-pronouns_personal      = tokens_by_tag(tagged, "PRP")
-pos_punctuation        = []
-for punct in punctuation:
-  pos_punctuation += tokens_by_tag(tagged, punct)
-#print tagged # DEBUG
+  # Explanation: http://www.monlp.com/2011/11/08/part-of-speech-tags/
+  adjectives             = tokens_by_tag(tagged, "JJ")
+  adjectives_comparative = tokens_by_tag(tagged, "JJR")
+  adjectives_superlative = tokens_by_tag(tagged, "JJS")
+  adverbs                = tokens_by_tag(tagged, "RB")
+  adverbs_comparative    = tokens_by_tag(tagged, "RBR")
+  adverbs_superlative    = tokens_by_tag(tagged, "RBS")
+  nouns                  = tokens_by_tag(tagged, "NN")
+  nouns_plural           = tokens_by_tag(tagged, "NNS")
+  nouns_proper           = tokens_by_tag(tagged, "NNP")
+  nouns_proper_plural    = tokens_by_tag(tagged, "NNPS")
+  verbs                  = tokens_by_tag(tagged, "VB")
+  verbs_past             = tokens_by_tag(tagged, "VBD")
+  verbs_3rd              = tokens_by_tag(tagged, "VBZ")
+  verbs_non_3rd          = tokens_by_tag(tagged, "VBP")
+  verbs_past_participle  = tokens_by_tag(tagged, "VBN")
+  pronouns_personal      = tokens_by_tag(tagged, "PRP")
+  pos_punctuation        = []
+  for punct in punctuation:
+    pos_punctuation += tokens_by_tag(tagged, punct)
 
-# Try to build a multiple word response
-helper_responses = []
-multiword_responses = []
-# from verb
-for verb in verbs + verbs_non_3rd:
-  helper_responses += [tokens[i:] if i < len(tokens) else None for i in range(len(tokens)) if tokens[i] == verb]
-# up to noun/punctuation/... or the end
-for fr in helper_responses:
-  fr = [fr[:(i + 1)] if i + 1 < len(fr) else None for i in range(len(fr)) if fr[i] in pos_punctuation + nouns + nouns_plural + nouns_proper + nouns_proper_plural]
-  if fr and fr[0]:
-    multiword_response = " ".join(fr[0])
-    multiword_responses.append(multiword_response)
+  # Try to build a multiple word response
+  helper_responses = []
+  multiword_responses = []
+  # from verb
+  for verb in verbs + verbs_non_3rd:
+    helper_responses += [tokens[i:] if i < len(tokens) else None for i in range(len(tokens)) if tokens[i] == verb]
+  # up to noun/punctuation/... or the end
+  for fr in helper_responses:
+    fr = [fr[:(i + 1)] if i + 1 < len(fr) else None for i in range(len(fr)) if fr[i] in pos_punctuation + nouns + nouns_plural + nouns_proper + nouns_proper_plural]
+    if fr and fr[0]:
+      multiword_response = " ".join(fr[0])
+      multiword_responses.append(multiword_response)
 
-# Select an insult as a response
-if ("Ruth" in question):
-  print angela + "Yeah, I agree."
-else:
-  print random_member(generate_all_possible_repartees())
+  # Select an insult as a response
+  if ("Ruth" in question):
+    print angela + "Yeah, I agree."
+  else:
+    print random_member(generate_all_possible_repartees())
