@@ -72,7 +72,7 @@ def multiword_responses(tokens, from_groups, to_groups):
     helper_responses += [tokens[i:] if i < len(tokens) else None for i in range(len(tokens)) if tokens[i] == verb]
   # up to noun/punctuation/... or the end
   for r in helper_responses:
-    r = [fr[:(i + 1)] if i + 1 < len(r) else None for i in range(len(r)) if r[i] in to_groups]
+    r = [r[:(i + 1)] if i < len(r) else None for i in range(len(r)) if r[i] in to_groups]
     if r and r[0]:
       response = " ".join(r[0])
       responses.append(response)
