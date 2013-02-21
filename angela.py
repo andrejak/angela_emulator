@@ -62,7 +62,17 @@ def tokens_by_tag(tagged_tokens, search_tag):
 # Builds a response based on one of the official bases, 
 # a word in the source list, using and given connectives to bind them
 def build_repartees(bases, from_list, connectives):
-  return [angela + random_member(bases) + connectives + elem + "." for elem in from_list]
+  return [random_member(bases) + connectives + elem + "." for elem in from_list]
+
+# Lowercases all words except proper nouns.
+def decapitalise(string, groups):
+  newString = ""
+  for word in string:
+    if word not in groups["nouns_proper"] + groups["nouns_proper_plural"]:
+      newString += word.lower()
+    else: 
+      newString += word
+  return newString
 
 # Try to build a multiple word response
 def multiword_responses(tokens, from_groups, to_groups):
@@ -147,4 +157,4 @@ if __name__=="__main__":
   if ("Ruth" in question):
     print angela + "Yeah, I agree."
   else:
-    print random_member(generate_all_possible_repartees(tokens, groups))
+    print angela + decapitalise(random_member(generate_all_possible_repartees(tokens, groups)), groups).capitalize()
