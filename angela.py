@@ -10,11 +10,6 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 #####################################################################
 
 angela = "Angela: "
-was    = "was "
-have   = "have "
-had    = "had "
-doing  = "doing "
-the    = "the "
 fail   = "Your mum's face wishes her face's mum was... I mean... Wait..."
 broken = "Well done. You broke Angela. I hope you're happy now."
 
@@ -39,16 +34,18 @@ questions = [
   "What do you like to do?"
 ]
 
+bases_simple = [
+  "Your face ", 
+  "Your mum "
+]
+
 bases_wishes = [
   "Your mum wishes she ",
   "Your mum wishes her face ",
   "Your mum wishes your face "
 ]
 
-bases = [
-  "Your face is ", 
-  "Your mum is "
-] + [wish + was for wish in bases_wishes]
+bases = [simple + "is " for simple in bases_simple] + [wish + "was " for wish in bases_wishes]
 
 #####################################################################
 # Helper function definitions
@@ -67,31 +64,36 @@ def tokens_by_tag(tagged_tokens, search_tag):
 def build_repartees(bases, from_list, connectives):
   return [angela + random_member(bases) + connectives + elem + "." for elem in from_list]
 
-# Extract the part to use as the insult
-# TODO Some cases don't work well (eg adverb - however, nouns - fluffy...)
-def generate_all_possible_repartees(groups):
-  # Try to build a multiple word response
+# Try to build a multiple word response
+def multiword_responses(tokens, from_groups, to_groups):
   helper_responses = []
-  multiword_responses = []
-  all_nouns = groups["nouns"] + groups["nouns_plural"] + groups["nouns_proper"] + groups["nouns_proper_plural"]
-  # from verb
-  for verb in groups["verbs"] + groups["verbs_non_3rd"]:
+  responses = []
+  for verb in from_groups:
     helper_responses += [tokens[i:] if i < len(tokens) else None for i in range(len(tokens)) if tokens[i] == verb]
   # up to noun/punctuation/... or the end
-  for fr in helper_responses:
-    fr = [fr[:(i + 1)] if i + 1 < len(fr) else None for i in range(len(fr)) if fr[i] in groups["punctuation"] + all_nouns]
-    if fr and fr[0]:
-      multiword_response = " ".join(fr[0])
-      multiword_responses.append(multiword_response)
+  for r in helper_responses:
+    r = [fr[:(i + 1)] if i + 1 < len(r) else None for i in range(len(r)) if r[i] in to_groups]
+    if r and r[0]:
+      response = " ".join(r[0])
+      responses.append(response)
+  return responses
+
+# Extract the part to use as the insult
+# TODO Some cases don't work well (eg adverb - however, nouns - fluffy...)
+def generate_all_possible_repartees(tokens, groups): 
+  to_groups = groups["punctuation"] + groups["nouns"] + groups["nouns_plural"] + groups["nouns_proper"] + groups["nouns_proper_plural"]
+  mw_responses_non_3rd = multiword_responses(tokens, groups["verbs"] + groups["verbs_non_3rd"], to_groups)
+  mw_responses_3rd = multiword_responses(tokens, groups["verbs_3rd"], to_groups)
 
   repartees = []
-  repartees += build_repartees(bases, groups["adjectives"] + groups["adjectives_comparative"] + groups["nouns_proper"], "")
-  repartees += build_repartees(bases, groups["adjectives_superlative"] + groups["adverbs_superlative"] + groups["nouns"], the)
-  repartees += build_repartees(bases, groups["adverbs"] + groups["adverbs_comparative"], doing)
-  repartees += build_repartees(bases_wishes, groups["verbs"] + groups["verbs_non_3rd"] + multiword_responses, random_member(modal_past))
+  repartees += build_repartees(bases_simple, groups["verbs_3rd"] + mw_responses_3rd, "")
+  repartees += build_repartees(bases_wishes, groups["verbs"] + groups["verbs_non_3rd"] + mw_responses_non_3rd, random_member(modal_past))
   repartees += build_repartees(bases_wishes, groups["verbs_past"], "")
-  repartees += build_repartees(bases_wishes, groups["verbs_past_participle"], random_member(modal_past) + have)
-  repartees += build_repartees(bases_wishes, groups["nouns_plural"] + groups["nouns_proper_plural"], had)
+  repartees += build_repartees(bases_wishes, groups["verbs_past_participle"], random_member(modal_past) + "have ")
+  repartees += build_repartees(bases_wishes, groups["nouns_plural"] + groups["nouns_proper_plural"], "had ")
+  repartees += build_repartees(bases, groups["adjectives"] + groups["adjectives_comparative"] + groups["nouns_proper"], "")
+  repartees += build_repartees(bases, groups["adjectives_superlative"] + groups["adverbs_superlative"] + groups["nouns"], "the ")
+  repartees += build_repartees(bases, groups["adverbs"] + groups["adverbs_comparative"], "doing ")
   if repartees:
     return repartees
   return [angela + fail + "\n" + broken]
@@ -145,4 +147,4 @@ if __name__=="__main__":
   if ("Ruth" in question):
     print angela + "Yeah, I agree."
   else:
-    print random_member(generate_all_possible_repartees(groups))
+    print random_member(generate_all_possible_repartees(tokens, groups))
